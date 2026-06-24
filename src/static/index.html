@@ -131,6 +131,9 @@ body {
     <h3>连接状态</h3>
     <div class="conn-section">
       <button class="btn btn-blue btn-sm" onclick="enumCameras()">枚举相机</button>
+      <select id="cameraSelect" style="padding:4px 6px;background:#0f0f2a;border:1px solid #3a3a6a;color:#e0e0e0;border-radius:4px;font-size:12px;flex:1;min-width:0;">
+        <option value="">-- 选择相机 --</option>
+      </select>
       <button class="btn btn-green btn-sm" onclick="openCamera()">打开相机</button>
       <button class="btn btn-red btn-sm" onclick="closeCamera()">关闭</button>
     </div>
@@ -385,15 +388,34 @@ async function apiPost(path, body = {}) {
 
 async function enumCameras() {
   const r = await apiPost('/api/camera/enum');
+  const sel = document.getElementById('cameraSelect');
+  sel.innerHTML = '<option value="">-- 选择相机 --</option>';
   if (r.ret === 0 && r.count > 0) {
-    log('发现 ' + r.count + ' 个设备: ' + r.devices.join(', '));
+    r.devices.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+    });
+    log('发现 ' + r.count + ' 个设备');
   } else {
     log('未发现相机设备');
   }
 }
 
 async function openCamera() {
-  const r = await apiPost('/api/camera/open');
+  const sel = document.getElementById('cameraSelect');
+  const selected = sel.value;
+  if (!selected) {
+    log('请先从下拉框选择要打开的相机');
+    return;
+  }
+  const idx = parseInt(selected.match(/^\[(\d+)\]/)?.[1]);
+  if (isNaN(idx)) {
+    log('无法解析相机索引');
+    return;
+  }
+  const r = await apiPost('/api/camera/open', { index: idx });
   if (r.ret === 0) {
     document.getElementById('camStatus').textContent = '已连接';
     document.getElementById('camDot').className = 'conn-dot online';

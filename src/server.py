@@ -54,9 +54,10 @@ _cached_gain = None
 
 
 @app.post("/api/camera/open")
-async def api_open_camera():
+async def api_open_camera(data: dict):
     global _camera_connected, _cached_exposure, _cached_gain
-    ret = camera.open_device(0)
+    index = data.get('index', 0)
+    ret = camera.open_device(index)
     if ret == 0:
         _camera_connected = True
         camera.start_grabbing()
