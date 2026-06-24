@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 
-set "CONDA_ENV=D:\Anaconda\envs\py310"
+set "CONDA_ENV=C:\ProgramData\anaconda3\envs\py310"
 set "PATH=%CONDA_ENV%;%CONDA_ENV%\Scripts;%CONDA_ENV%\Library\bin;%PATH%"
 
 cd /d "%~dp0src"
